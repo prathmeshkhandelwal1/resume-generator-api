@@ -44,6 +44,11 @@ var userSchema = mongoose.Schema({
     }
   }]
 });
+userSchema.virtual('tasks', {
+  ref: 'details',
+  localField: '_id',
+  foreignField: 'owner'
+});
 
 userSchema.statics.findByCredentials = function _callee(email, password) {
   var user, isMatch;
@@ -80,7 +85,15 @@ userSchema.statics.findByCredentials = function _callee(email, password) {
       }
     }
   });
-}; //for generating auth tokens
+};
+
+userSchema.methods.toJSON = function () {
+  var user = this;
+  var userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.tokens;
+  return userObject;
+}; //for generating auth token
 
 
 userSchema.methods.generateAuthToken = function _callee2() {
@@ -90,14 +103,16 @@ userSchema.methods.generateAuthToken = function _callee2() {
       switch (_context2.prev = _context2.next) {
         case 0:
           user = this;
-          console.log(user.tokens);
           token = jwt.sign({
             _id: user._id.toString()
           }, 'console.log');
-          console.log(token);
           user.tokens = user.tokens.concat({
             token: token
           });
+          _context2.next = 5;
+          return regeneratorRuntime.awrap(user.save());
+
+        case 5:
           console.log(user.tokens);
           return _context2.abrupt("return", token);
 

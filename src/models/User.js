@@ -42,6 +42,12 @@ const userSchema = mongoose.Schema({
 }
 )
 
+userSchema.virtual('tasks', {
+    ref:'details',
+    localField:'_id',
+    foreignField:'owner'
+})
+
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({email})
@@ -54,14 +60,21 @@ userSchema.statics.findByCredentials = async (email, password) => {
     return user
 }
 
-//for generating auth tokens
+userSchema.methods.toJSON = function() {
+    const user = this
+    const userObject = user.toObject()
+    delete userObject.password
+    delete userObject.tokens
+    return userObject
+}   
+
+//for generating auth token
 
 userSchema.methods.generateAuthToken = async function (){
     const user = this
-    console.log(user.tokens)
     const token = jwt.sign({ _id: user._id.toString()}, 'console.log')
-    console.log(token)
     user.tokens = user.tokens.concat({token:token})
+    await user.save()
     console.log(user.tokens)
     return token
 }

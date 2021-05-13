@@ -33,22 +33,23 @@ var auth = function auth(req, res, next) {
           throw new Error();
 
         case 11:
+          req.token = token;
           req.user = user;
           next();
-          _context.next = 18;
+          _context.next = 19;
           break;
 
-        case 15:
-          _context.prev = 15;
+        case 16:
+          _context.prev = 16;
           _context.t0 = _context["catch"](0);
           res.status(401).send('Plz Authorize');
 
-        case 18:
+        case 19:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 15]]);
+  }, null, null, [[0, 16]]);
 };
 
 module.exports = auth;
